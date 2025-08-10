@@ -427,7 +427,7 @@ function Hero() {
                   </div>
                 </div>
                 <div className="mt-4">
-                  <div className="text-lg font-semibold text-gray-900 dark:text-white">{profile.name}</div>
+                  <div className="text-2xl font-semibold text-gray-900 dark:text-white">{profile.name}</div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">{profile.title}</div>
                   <div className="mt-2 inline-flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                     <MapPin className="h-4 w-4" /> {profile.location}
@@ -849,8 +849,12 @@ export default function Portfolio() {
             <motion.div {...fadeUp} className="md:col-span-2">
               <Card>
                 <p className="text-sm leading-7 text-gray-700 dark:text-gray-200">
-                 I’m a systems integrator specializing in <strong>enterprise AV</strong> and <strong>broadcast</strong>, with a focus on delivering  
-                 <em> reliable, maintainable, and operator-friendly</em> solutions. From needs assessment and design to commissioning, documentation, and training, I work closely with clients and vendors to ensure technical requirements are met while safeguarding budgets and timelines.
+                  I’m a systems integrator specializing in <strong>enterprise AV</strong>, <strong>broadcast</strong>, and <strong>ELV</strong> solutions, 
+                  with over <strong>20 years</strong> of experience delivering <em>reliable, maintainable, and operator-friendly</em> systems. 
+                  From needs assessment and design to commissioning, documentation, and training, I work closely with clients and vendors 
+                  to ensure technical requirements are met while safeguarding budgets and timelines. 
+                  My portfolio includes <strong>300+  state-of-the-art meeting rooms</strong>, 
+                  <strong>AV over IP</strong> deployments, and <strong>large-scale broadcast projects</strong> for corporate, government, and educational sectors.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Chip>Head of System Integrations — Anscom Limited</Chip>
