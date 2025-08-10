@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 // Import your local images
-import heroImage from './src/assets/images/hero-image.png';
+import heroImage from './assets/images/hero-image.png';
 import {
   Aperture,
   AudioLines,
