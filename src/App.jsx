@@ -37,7 +37,7 @@ const profile = {
   ],
   socials: [
     { label: "Email", href: "mailto:Kithnuwan@gmail.com", Icon: Mail },
-    { label: "LinkedIn", href: "#", Icon: Linkedin },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/kithnuwan-silva-70310310/", Icon: Linkedin },
   ],
   heroImage: "https://i.ibb.co/L6VRb9W/kithnuwan-silva-portrait.png", // Using a placeholder URL
 };
