@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 // Import your local images
 import heroImage from './assets/images/hero-image.png';
+import meetingRoom1 from './assets/images/meetingRoom1.png';
 import {
   Aperture,
   AudioLines,
@@ -28,7 +29,7 @@ import {
 const profile = {
   name: "Kithnuwan Silva",
   title: "Head of System Integrations · Anscom Limited",
-  location: "Horana, Sri Lanka",
+  location: "Colombo, Sri Lanka",
   summary:
     "Broadcast, AV, and ELV integrator specializing in the design, integration, and support of high-performance systems for corporate, government, and broadcast environments — from boardrooms to broadcast studios.",
   highlights: [
@@ -84,24 +85,18 @@ const services = [
 ];
 
 const projects = [
+  
   {
     title: "MAS Intimate – Digital Product Center",
     client: "MAS Holdings",
     year: "2025",
     summary:
-      "IP‑based AV for lobby and experience zones with Samsung signage, vertical displays, HDMI wall plates, and BeingHD IPX‑925D transceivers. Scheduled content via four media players.",
+      "State-of-the-art Digital Product Creation Center for MAS Intimates, featuring a 4K 60P AV over IP system, 3x3 video wall, high-resolution signage, Microsoft Teams Room setup, interactive touch panels, and an intuitive control system—enabling seamless collaboration, innovation, and digital workflow transformation.",
     outcomes: ["Flexible AVoIP", "Central scheduling", "Visitor impact"],
     tags: ["AV over IP", "Digital Signage", "Retail/Experience"],
+    image: meetingRoom1,
   },
-  {
-    title: "Air Secretariat Board Room (Block 04, 6F)",
-    client: "Sri Lanka Air Force",
-    year: "2025",
-    summary:
-      "Digital discussion, sound reinforcement, and P1.53 LED video wall with full AV control & switching. Engineered for executive‑grade hybrid meetings.",
-    outcomes: ["LED clarity", "Seamless control", "Executive UX"],
-    tags: ["Boardroom", "LED", "Control"],
-  },
+  
   {
     title: "UNICEF Sri Lanka – New HQ Meeting Rooms",
     client: "UNICEF Sri Lanka",
@@ -120,25 +115,8 @@ const projects = [
     outcomes: ["Clear speech", "Auto camera cues", "Hybrid ready"],
     tags: ["Auditorium", "AI Tracking", "Education"],
   },
-  {
-    title: "Nelum Pokuna – Lighting Control Upgrade",
-    client: "Nelum Pokuna Theatre",
-    year: "2024",
-    summary:
-      "Upgrade of the lighting control system to modern, maintainable infrastructure while preserving show workflows.",
-    outcomes: ["Reliability", "Operator familiar", "Serviceable"],
-    tags: ["Theatre", "Lighting Control", "Upgrade"],
-  },
-  {
-    title: "Defence HQ Complex – Multimedia System",
-    client: "Sri Lanka (Government)",
-    year: "2024",
-    summary:
-      "Detailed technical proposal for Block 1 & 2 multimedia, integrating displays, switching, and documentation for execution.",
-    outcomes: ["Comprehensive spec", "Scalable design", "Compliance"],
-    tags: ["Proposal", "Government", "Multimedia"],
-  },
-  // --- From CV: Meeting Room Solutions ---
+  
+    // --- From CV: Meeting Room Solutions ---
   {
     title: "Lion Brewery — Boardroom",
     client: "Lion Brewery Sri Lanka",
@@ -235,7 +213,7 @@ const experience = [
 
 const education = [
   { degree: "BSc (Hons) – Computer Networks & Security", school: "Glyndwr University, Wrexham" },
-  { degree: "GCE A/L (Physics B, Chemistry C, Biology C)", school: "Taxila Central College, Horana" },
+  
 ];
 
 const certifications = [
@@ -341,18 +319,17 @@ function Chip({ children }) {
 function Section({ id, title, eyebrow, children, actions }) {
   return (
     <section id={id} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-      {/* This is the line to change.
-        It controls the layout of the title and the filter tags.
-      */}
-      <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-        <div>
-          {eyebrow && (
-            <div className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">{eyebrow}</div>
-          )}
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{title}</h2>
-        </div>
-        {actions && <div className="flex gap-2">{actions}</div>}
+      {/* This container now ONLY handles the title and eyebrow */}
+      <div className="mb-8">
+        {eyebrow && (
+          <div className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">{eyebrow}</div>
+        )}
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{title}</h2>
       </div>
+
+      {/* Actions (filters) are now rendered separately after the title and before the content */}
+      {actions && <div className="mb-8">{actions}</div>}
+      
       {children}
     </section>
   );
@@ -420,7 +397,7 @@ function Hero() {
               AV & Broadcast Systems that <span className="bg-gradient-to-r from-indigo-600 to-cyan-500 bg-clip-text text-transparent">perform</span>
             </h1>
             <p className="mt-4 text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl">
-              I design, integrate, and support professional audio‑visual environments—from boardrooms to broadcast studios—so your teams can present, collaborate, and scale with confidence.
+              Broadcast, AV, and ELV integrator specializing in the design, integration, and support of high-performance systems for corporate, government, and broadcast environments — from boardrooms to broadcast studios.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               {profile.highlights.map((h) => (
@@ -507,7 +484,8 @@ function Projects() {
       title="Featured Projects"
       eyebrow="Proof of work"
       actions={
-        <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4">
+        <div className="flex flex-wrap justify-start gap-2">
+          {/* --- Filter buttons go here (no changes needed) --- */}
           <button
             onClick={() => setActive("All")}
             className={classNames(
@@ -536,33 +514,47 @@ function Projects() {
         </div>
       }
     >
-      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+      {/* --- NEW PROJECT CARD LAYOUT --- */}
+      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
         {filtered.map((p) => (
           <motion.div key={p.title} {...fadeUp}>
-            <Card>
-              <div className="flex items-start gap-4">
-                {p.image ? (
-                  <img src={p.image} alt={p.title} className="h-12 w-12 rounded-xl object-cover ring-1 ring-black/5 dark:ring-white/10" />
-                ) : (
-                  <div className="h-12 w-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-400 flex-shrink-0" />
+            {/* Card now uses a vertical flex layout */}
+            <div className="flex flex-col gap-4">
+              {/* Image container */}
+              <div className="relative">
+                <img
+                  src={p.image}
+                  alt={p.title}
+                  className="w-full aspect-video object-cover rounded-2xl ring-1 ring-black/5 dark:ring-white/10"
+                />
+                {/* Conditional link to album */}
+                {p.albumUrl && (
+                  <a
+                    href={p.albumUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute top-3 right-3 p-2 rounded-full bg-white/70 dark:bg-black/70 backdrop-blur-sm hover:scale-110 transition-transform"
+                    aria-label="View image album"
+                  >
+                    <ExternalLink className="h-5 w-5 text-gray-800 dark:text-gray-100" />
+                  </a>
                 )}
-                <div>
-                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                    <Building2 className="h-4 w-4" /> {p.client} <span>•</span> {p.year}
-                  </div>
-                  <h3 className="mt-1 text-base font-semibold text-gray-900 dark:text-white">{p.title}</h3>
-                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{p.summary}</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {p.tags.map((t) => (
-                      <Chip key={t}>{t}</Chip>
-                    ))}
-                  </div>
-                  <div className="mt-4 text-sm text-gray-700 dark:text-gray-200">
-                    <span className="font-medium">Outcomes:</span> {p.outcomes.join(", ")}
-                  </div>
+              </div>
+              
+              {/* Text content container */}
+              <div>
+                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                  <Building2 className="h-4 w-4" /> {p.client} <span>•</span> {p.year}
+                </div>
+                <h3 className="mt-1 text-base font-semibold text-gray-900 dark:text-white">{p.title}</h3>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{p.summary}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {p.tags.map((t) => (
+                    <Chip key={t}>{t}</Chip>
+                  ))}
                 </div>
               </div>
-            </Card>
+            </div>
           </motion.div>
         ))}
       </div>
