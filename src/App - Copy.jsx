@@ -337,14 +337,10 @@ function Chip({ children }) {
   );
 }
 
-// Find this component in your code
 function Section({ id, title, eyebrow, children, actions }) {
   return (
     <section id={id} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-      {/* This is the line to change.
-        It controls the layout of the title and the filter tags.
-      */}
-      <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div className="mb-8 flex items-end justify-between gap-4 flex-wrap">
         <div>
           {eyebrow && (
             <div className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">{eyebrow}</div>
