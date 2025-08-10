@@ -849,8 +849,8 @@ export default function Portfolio() {
             <motion.div {...fadeUp} className="md:col-span-2">
               <Card>
                 <p className="text-sm leading-7 text-gray-700 dark:text-gray-200">
-                  I’m a systems integrator specializing in <strong>enterprise AV</strong> and <strong>broadcast</strong>. My focus is delivering
-                  <em> reliable, maintainable, and operator‑friendly</em> solutions. From discovery and design to commissioning, documentation, and training, I work hands‑on with clients and vendors to meet technical requirements while protecting budgets and timelines.
+                 I’m a systems integrator specializing in <strong>enterprise AV</strong> and <strong>broadcast</strong>, with a focus on delivering  
+                 <em> reliable, maintainable, and operator-friendly</em> solutions. From needs assessment and design to commissioning, documentation, and training, I work closely with clients and vendors to ensure technical requirements are met while safeguarding budgets and timelines.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Chip>Head of System Integrations — Anscom Limited</Chip>
