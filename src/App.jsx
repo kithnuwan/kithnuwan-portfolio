@@ -1,5 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
+// Import your local images
+import heroImage from './src/assets/images/hero-image.png';
 import {
   Aperture,
   AudioLines,
@@ -39,7 +41,7 @@ const profile = {
     { label: "Email", href: "mailto:Kithnuwan@gmail.com", Icon: Mail },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/kithnuwan-silva-70310310/", Icon: Linkedin },
   ],
-  heroImage: "./src/assets/images/hero-image.png", // Using a placeholder URL
+  heroImage: heroImage, // Using a placeholder URL
 };
 
 const services = [
