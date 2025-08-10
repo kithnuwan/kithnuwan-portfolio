@@ -39,7 +39,7 @@ const profile = {
     { label: "Email", href: "mailto:Kithnuwan@gmail.com", Icon: Mail },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/kithnuwan-silva-70310310/", Icon: Linkedin },
   ],
-  heroImage: "./assets/images/hero-image.png", // Using a placeholder URL
+  heroImage: "./src/assets/images/hero-image.png", // Using a placeholder URL
 };
 
 const services = [
