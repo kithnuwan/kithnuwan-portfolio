@@ -1,5 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
 // Import your local images
 import heroImage from './assets/images/hero-image.png';
 import meetingRoom1 from './assets/images/meetingRoom1.png';
@@ -96,6 +98,12 @@ const projects = [
     outcomes: ["Flexible AVoIP", "Central scheduling", "Visitor impact"],
     tags: ["AV over IP", "Digital Signage", "Retail/Experience"],
     image: meetingRoom1,
+    galleryImages: [ // <-- Add this array
+      { src: meetingRoom1 },
+      { src: 'https://i.ibb.co/3YY7v1B/meeting-room-slide-2.jpg' }, // You can mix local imports and URLs
+      { src: 'https://i.ibb.co/D81Ff6C/meeting-room-slide-3.jpg' },
+    ],
+    
   },
   
   {
@@ -482,91 +490,98 @@ function Services() {
 // FIX: Corrected filter button to show active state.
 function Projects() {
   const [active, setActive] = useState("All");
+  // State to manage which lightbox is open. -1 means none are open.
+  const [lightboxIndex, setLightboxIndex] = useState(-1);
+
   const filtered = useMemo(
     () => (active === "All" ? projects : projects.filter((p) => (p.tags || []).includes(active))),
     [active]
   );
+
   return (
-    <Section
-      id="projects"
-      title="Featured Projects"
-      eyebrow="Proof of work"
-      actions={
-        <div className="flex flex-wrap justify-start gap-2">
-          {/* --- Filter buttons go here (no changes needed) --- */}
-          <button
-            onClick={() => setActive("All")}
-            className={classNames(
-              "px-3 py-1.5 rounded-xl text-sm font-medium ring-1 ring-black/10 dark:ring-white/20 whitespace-nowrap",
-              active === "All"
-                ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
-                : "text-gray-800 dark:text-gray-200 hover:bg-black/5 dark:hover:bg-white/10"
-            )}
-          >
-            All
-          </button>
-          {tags.map((t) => (
+    <> {/* Use a Fragment to wrap the Section and the Lightbox */}
+      <Section
+        id="projects"
+        title="Featured Projects"
+        eyebrow="Proof of work"
+        actions={
+          // This div contains the actual filter buttons, fixing the error.
+          <div className="flex flex-wrap justify-start gap-2">
             <button
-              key={t}
-              onClick={() => setActive(t)}
+              onClick={() => setActive("All")}
               className={classNames(
                 "px-3 py-1.5 rounded-xl text-sm font-medium ring-1 ring-black/10 dark:ring-white/20 whitespace-nowrap",
-                active === t
+                active === "All"
                   ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
                   : "text-gray-800 dark:text-gray-200 hover:bg-black/5 dark:hover:bg-white/10"
               )}
             >
-              {t}
+              All
             </button>
+            {tags.map((t) => (
+              <button
+                key={t}
+                onClick={() => setActive(t)}
+                className={classNames(
+                  "px-3 py-1.5 rounded-xl text-sm font-medium ring-1 ring-black/10 dark:ring-white/20 whitespace-nowrap",
+                  active === t
+                    ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
+                    : "text-gray-800 dark:text-gray-200 hover:bg-black/5 dark:hover:bg-white/10"
+                )}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        }
+      >
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
+          {filtered.map((p, index) => ( // Get the index of the project
+            <motion.div key={p.title} {...fadeUp}>
+              <div className="flex flex-col gap-4">
+                <div className="relative">
+                  <img
+                    src={p.image}
+                    alt={p.title}
+                    className={`w-full aspect-video object-cover rounded-2xl ring-1 ring-black/5 dark:ring-white/10 ${p.galleryImages ? 'cursor-pointer' : ''}`} // Add cursor-pointer if a gallery exists
+                    onClick={() => p.galleryImages && setLightboxIndex(index)} // Open lightbox on click
+                  />
+                  {p.albumUrl && (
+                    <a
+                      href={p.albumUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="absolute top-3 right-3 p-2 rounded-full bg-white/70 dark:bg-black/70 backdrop-blur-sm hover:scale-110 transition-transform"
+                      aria-label="View image album"
+                    >
+                      <ExternalLink className="h-5 w-5 text-gray-800 dark:text-gray-100" />
+                    </a>
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                    <Building2 className="h-4 w-4" /> {p.client} <span>•</span> {p.year}
+                  </div>
+                  <h3 className="mt-1 text-base font-semibold text-gray-900 dark:text-white">{p.title}</h3>
+                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{p.summary}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {p.tags.map((t) => (
+                      <Chip key={t}>{t}</Chip>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           ))}
         </div>
-      }
-    >
-      {/* --- NEW PROJECT CARD LAYOUT --- */}
-      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
-        {filtered.map((p) => (
-          <motion.div key={p.title} {...fadeUp}>
-            {/* Card now uses a vertical flex layout */}
-            <div className="flex flex-col gap-4">
-              {/* Image container */}
-              <div className="relative">
-                <img
-                  src={p.image}
-                  alt={p.title}
-                  className="w-full aspect-video object-cover rounded-2xl ring-1 ring-black/5 dark:ring-white/10"
-                />
-                {/* Conditional link to album */}
-                {p.albumUrl && (
-                  <a
-                    href={p.albumUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute top-3 right-3 p-2 rounded-full bg-white/70 dark:bg-black/70 backdrop-blur-sm hover:scale-110 transition-transform"
-                    aria-label="View image album"
-                  >
-                    <ExternalLink className="h-5 w-5 text-gray-800 dark:text-gray-100" />
-                  </a>
-                )}
-              </div>
-              
-              {/* Text content container */}
-              <div>
-                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                  <Building2 className="h-4 w-4" /> {p.client} <span>•</span> {p.year}
-                </div>
-                <h3 className="mt-1 text-base font-semibold text-gray-900 dark:text-white">{p.title}</h3>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{p.summary}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {p.tags.map((t) => (
-                    <Chip key={t}>{t}</Chip>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </Section>
+      </Section>
+      
+      <Lightbox
+        open={lightboxIndex > -1}
+        close={() => setLightboxIndex(-1)}
+        slides={lightboxIndex > -1 ? filtered[lightboxIndex].galleryImages : []}
+      />
+    </>
   );
 }
 
