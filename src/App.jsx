@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 // Import your local images
 import heroImage from './assets/images/hero-image.png';
 import meetingRoom1 from './assets/images/meetingRoom1.png';
+import myLogo from './assets/images/my-logo.png'; 
 import {
   Aperture,
   AudioLines,
@@ -356,13 +357,18 @@ function Nav() {
   return (
     <div className="sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-black/30 border-b border-black/5 dark:border-white/10">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-indigo-500 via-sky-500 to-cyan-400" />
+        {/* This link now wraps the logo and name, making them clickable */}
+        <a href="#" className="flex items-center gap-3">
+          {/* 1. Image is now used instead of the placeholder div */}
+          <img src={myLogo} alt="Logo" className="h-9 w-9 rounded-xl object-cover" />
           <div className="leading-tight">
-            <div className="text-sm font-semibold text-gray-900 dark:text-white">{profile.name}</div>
+            {/* 2. Text size for the name is increased from text-sm to text-base */}
+            <div className="text-base font-semibold text-gray-900 dark:text-white">{profile.name}</div>
             <div className="text-xs text-gray-500 dark:text-gray-400">{profile.title}</div>
           </div>
-        </div>
+        </a>
+
+        {/* --- Main navigation links (no changes here) --- */}
         <div className="hidden md:flex items-center gap-6 text-sm">
           {items.map((i) => (
             <a key={i.href} href={i.href} className="text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-cyan-300">
@@ -370,6 +376,8 @@ function Nav() {
             </a>
           ))}
         </div>
+
+        {/* --- Social links (no changes here) --- */}
         <div className="flex items-center gap-2">
           {profile.socials.map(({ label, href, Icon }) => (
             <a key={label} href={href} className="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10" aria-label={label}>
