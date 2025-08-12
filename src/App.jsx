@@ -27,6 +27,7 @@ import {
   Cpu,
   Layers,
   Presentation,
+  ExternalLink,
 } from "lucide-react";
 
 // ---------- Data (edit here to update content) ----------
@@ -99,12 +100,13 @@ const projects = [
     outcomes: ["Flexible AVoIP", "Central scheduling", "Visitor impact"],
     tags: ["AV over IP", "Digital Signage", "Retail/Experience"],
     image: meetingRoom1,
-    galleryImages: [ // <-- Add this array
+    // Mixed gallery: first slide is a YouTube video, followed by images
+    gallerySlides: [
+      { type: 'youtube', id: 'be6J3gtlmtQ', title: 'MAS Intimate – Walkthrough' },
       { src: meetingRoom1 },
-      { src: 'https://i.ibb.co/3YY7v1B/meeting-room-slide-2.jpg' }, // You can mix local imports and URLs
+      { src: 'https://i.ibb.co/3YY7v1B/meeting-room-slide-2.jpg' },
       { src: 'https://i.ibb.co/D81Ff6C/meeting-room-slide-3.jpg' },
     ],
-    
   },
   
   {
@@ -115,6 +117,8 @@ const projects = [
       "Teams Rooms with ceiling tile microphones, presenter/participant tracking cameras, hearing loop system, and signage displays integrated with facility AV.",
     outcomes: ["Inclusive audio", "Auto‑tracking", "Standards‑aligned"],
     tags: ["Teams Rooms", "Accessibility", "Enterprise"],
+    image: 'https://i.ibb.co/Wc63tDx/meeting-room-slide-1.jpg',
+    // no video for this one
   },
   {
     title: "IWMI Auditorium – Voice Lift & Tracking",
@@ -124,6 +128,7 @@ const projects = [
       "Voice‑lifting design with camera tracking across multiple seat layouts, optimized for lectures and hybrid conferences.",
     outcomes: ["Clear speech", "Auto camera cues", "Hybrid ready"],
     tags: ["Auditorium", "AI Tracking", "Education"],
+    image: 'https://i.ibb.co/xLw99rX/meeting-room-slide-4.jpg',
   },
   
     // --- From CV: Meeting Room Solutions ---
@@ -422,7 +427,7 @@ function Hero() {
               ))}
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#contact" className="inline-flex items-center gap-2 rounded-2xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-2.5 text-sm font-semibold hover:opacity-90">
+              <a href="#contact" className="inline-flex items-center gap-2 rounded-2xl bg-gray-900 dark:bg:white text-white dark:text-gray-900 px-4 py-2.5 text-sm font-semibold hover:opacity-90">
                 Request a proposal <ChevronRight className="h-4 w-4" />
               </a>
               <a href="#projects" className="inline-flex items-center gap-2 rounded-2xl ring-1 ring-black/10 dark:ring-white/20 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-white hover:bg-black/5 dark:hover:bg-white/10">
@@ -433,7 +438,7 @@ function Hero() {
           <div className="md:col-span-5">
             <Card>
               <div className="flex flex-col items-center text-center">
-                <div className="relative mx-auto w-full max-w-[280px]">
+                <div className="relative mx-auto w/full max-w-[280px]">
                   <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 blur-2xl opacity-40 -z-10" />
                   <div className="rounded-full p-[3px] bg-gradient-to-tr from-indigo-500 to-cyan-400">
                     <img
@@ -499,6 +504,8 @@ function Projects() {
     [active]
   );
 
+  const currentSlides = lightboxIndex > -1 ? (filtered[lightboxIndex].gallerySlides || filtered[lightboxIndex].galleryImages || []) : [];
+
   return (
     <> {/* Use a Fragment to wrap the Section and the Lightbox */}
       <Section
@@ -544,8 +551,8 @@ function Projects() {
                   <img
                     src={p.image}
                     alt={p.title}
-                    className={`w-full aspect-video object-cover rounded-2xl ring-1 ring-black/5 dark:ring-white/10 ${p.galleryImages ? 'cursor-pointer' : ''}`} // Add cursor-pointer if a gallery exists
-                    onClick={() => p.galleryImages && setLightboxIndex(index)} // Open lightbox on click
+                    className={`w-full aspect-video object-cover rounded-2xl ring-1 ring-black/5 dark:ring-white/10 ${(p.gallerySlides || p.galleryImages) ? 'cursor-pointer' : ''}`} // Add cursor-pointer if a gallery exists
+                    onClick={() => (p.gallerySlides || p.galleryImages) && setLightboxIndex(index)} // Open lightbox on click
                   />
                   {p.albumUrl && (
                     <a
@@ -580,7 +587,31 @@ function Projects() {
       <Lightbox
         open={lightboxIndex > -1}
         close={() => setLightboxIndex(-1)}
-        slides={lightboxIndex > -1 ? filtered[lightboxIndex].galleryImages : []}
+        slides={currentSlides}
+        render={{
+          // Custom slide renderer to support YouTube inside the lightbox for specific projects only
+          slide: ({ slide }) => {
+            if (slide.type === 'youtube' && slide.id) {
+              return (
+                <div className="w-full h-full flex items-center justify-center p-4">
+                  <div className="w-full max-w-5xl aspect-video">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src={`https://www.youtube.com/embed/${slide.id}?autoplay=1&rel=0`}
+                      title={slide.title || 'YouTube video'}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              );
+            }
+            return undefined; // fall back to default image renderer
+          },
+        }}
       />
     </>
   );
