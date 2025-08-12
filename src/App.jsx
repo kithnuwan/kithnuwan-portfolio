@@ -8,6 +8,7 @@ import meetingRoom1 from './assets/images/meetingRoom1.png';
 import myLogo from './assets/images/my-logo.png'; 
 import {
   Aperture,
+  Phone,
   AudioLines,
   BadgeCheck,
   Camera,
@@ -773,6 +774,7 @@ function Contact() {
       <div className="grid md:grid-cols-3 gap-6">
         <motion.div {...fadeUp} className="md:col-span-2">
           <Card>
+            {/* The contact form remains unchanged */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -785,6 +787,7 @@ function Contact() {
               }}
               className="grid sm:grid-cols-2 gap-4"
             >
+              {/* Form fields... */}
               <div>
                 <label htmlFor="name" className="text-sm font-medium">Name</label>
                 <input id="name" name="name" required className="mt-1 w-full rounded-xl border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 px-3 py-2" />
@@ -826,11 +829,21 @@ function Contact() {
             </form>
           </Card>
         </motion.div>
+        
         <motion.div {...fadeUp}>
           <Card>
             <div className="text-sm text-gray-700 dark:text-gray-200 space-y-3">
               <div className="flex items-start gap-2"><Mail className="h-4 w-4 mt-0.5 flex-shrink-0" /> <a className="hover:underline break-all" href="mailto:Kithnuwan@gmail.com">Kithnuwan@gmail.com</a></div>
               <div className="flex items-start gap-2"><MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" /> {profile.location}</div>
+              
+              {/* The WhatsApp link has been moved to its new position here */}
+              <div className="flex items-start gap-2">
+                <Phone className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <a className="hover:underline" href="https://wa.me/94777046928" target="_blank" rel="noopener noreferrer">
+                  +94 77 704 6928 (WhatsApp)
+                </a>
+              </div>
+
               <div className="flex items-start gap-2"><Aperture className="h-4 w-4 mt-0.5 flex-shrink-0" /> Available for Sri Lanka & remote consulting</div>
             </div>
             <div className="mt-6">
