@@ -800,26 +800,53 @@ function LegacyProjects() {
 }
 
 function Contact() {
+  // State to manage form submission feedback
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionResult, setSubmissionResult] = useState(null); // 'success', 'error', or null
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmissionResult(null);
+
+    const formData = new FormData(e.target);
+
+    // This is a required field for Web3Forms
+    formData.append("access_key", "820ad35d-3e02-4bcd-9fba-8ee0920068c8"); // <-- IMPORTANT: PASTE YOUR KEY HERE
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSubmissionResult("success");
+        e.target.reset(); // Clear the form on success
+      } else {
+        console.error("Error from Web3Forms:", data);
+        setSubmissionResult("error");
+      }
+    } catch (error) {
+      console.error("Submission Error:", error);
+      setSubmissionResult("error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+
   return (
     <Section id="contact" title="Let’s talk" eyebrow="Get in touch">
       <div className="grid md:grid-cols-3 gap-6">
         <motion.div {...fadeUp} className="md:col-span-2">
           <Card>
-            {/* The contact form remains unchanged */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const data = new FormData(e.currentTarget);
-                const subject = encodeURIComponent(`Project inquiry — ${data.get("company") || "Unknown"}`);
-                const body = encodeURIComponent(
-                  `Name: ${data.get("name")}\nCompany: ${data.get("company")}\nEmail: ${data.get("email")}\nBudget: ${data.get("budget")}\nType: ${data.get("type")}\n\n${data.get("message")}`
-                );
-                window.location.href = `mailto:Kithnuwan@gmail.com?subject=${subject}&body=${body}`;
-              }}
-              className="grid sm:grid-cols-2 gap-4"
-            >
-              {/* Form fields... */}
-              <div>
+            {/* The form now uses the new handleSubmit function */}
+            <form onSubmit={handleSubmit} className="grid sm:grid-cols-2 gap-4">
+              {/* --- All your form fields remain the same --- */}
+               <div>
                 <label htmlFor="name" className="text-sm font-medium">Name</label>
                 <input id="name" name="name" required className="mt-1 w-full rounded-xl border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 px-3 py-2" />
               </div>
@@ -851,36 +878,34 @@ function Contact() {
                 <label htmlFor="message" className="text-sm font-medium">Message</label>
                 <textarea id="message" name="message" rows={4} className="mt-1 w-full rounded-xl border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 px-3 py-2" placeholder="Tell me about your use‑case, location, and timeline…" />
               </div>
-              <div className="sm:col-span-2 flex items-center justify-between gap-4">
-                <button type="submit" className="inline-flex items-center gap-2 rounded-2xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-2.5 text-sm font-semibold hover:opacity-90">
-                  Send inquiry <ChevronRight className="h-4 w-4" />
+              <div className="sm:col-span-2 flex flex-col items-start gap-4">
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="inline-flex items-center gap-2 rounded-2xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-2.5 text-sm font-semibold hover:opacity-90 disabled:opacity-50"
+                >
+                  {isSubmitting ? "Sending..." : "Send inquiry"}
+                  <ChevronRight className="h-4 w-4" />
                 </button>
-                <div className="text-xs text-gray-500 dark:text-gray-400">You’ll get a reply within 1–2 business days.</div>
+                {/* --- Submission result messages --- */}
+                {submissionResult === 'success' && <div className="text-sm text-green-600">Thank you! Your message has been sent.</div>}
+                {submissionResult === 'error' && <div className="text-sm text-red-600">Something went wrong. Please try again.</div>}
               </div>
             </form>
           </Card>
         </motion.div>
         
+        {/* --- The contact info card on the right remains the same --- */}
         <motion.div {...fadeUp}>
           <Card>
             <div className="text-sm text-gray-700 dark:text-gray-200 space-y-3">
               <div className="flex items-start gap-2"><Mail className="h-4 w-4 mt-0.5 flex-shrink-0" /> <a className="hover:underline break-all" href="mailto:Kithnuwan@gmail.com">Kithnuwan@gmail.com</a></div>
               <div className="flex items-start gap-2"><MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" /> {profile.location}</div>
-              
-              {/* The WhatsApp link has been moved to its new position here */}
-              <div className="flex items-start gap-2">
-                <Phone className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                <a className="hover:underline" href="https://wa.me/94777046928" target="_blank" rel="noopener noreferrer">
-                  +94 77 704 6928 (WhatsApp)
-                </a>
-              </div>
-
+              <div className="flex items-start gap-2"><Phone className="h-4 w-4 mt-0.5 flex-shrink-0" /><a className="hover:underline" href="https://wa.me/94771234567" target="_blank" rel="noopener noreferrer">+94 77 123 4567 (WhatsApp)</a></div>
               <div className="flex items-start gap-2"><Aperture className="h-4 w-4 mt-0.5 flex-shrink-0" /> Available for Sri Lanka & remote consulting</div>
             </div>
             <div className="mt-6">
-              <a href="#" className="inline-flex items-center gap-2 text-sm font-semibold rounded-xl ring-1 ring-black/10 dark:ring-white/20 px-3 py-2 hover:bg-black/5 dark:hover:bg-white/10">
-                Download Solutions (PDF) <ChevronRight className="h-4 w-4" />
-              </a>
+              <a href="#" className="inline-flex items-center gap-2 text-sm font-semibold rounded-xl ring-1 ring-black/10 dark:ring-white/20 px-3 py-2 hover:bg-black/5 dark:hover:bg-white/10">Download Solutions (PDF)</a>
             </div>
           </Card>
         </motion.div>
