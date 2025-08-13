@@ -2,6 +2,9 @@ import React, { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
+import { createClient } from 'contentful';
+import { BLOCKS } from '@contentful/rich-text-types';
+import { documentToReactComponents } from '@contentful/rich-text-react-renderer';
 // Import your local images
 import heroImage from './assets/images/hero-image.png';
 import meetingRoom1 from './assets/images/meetingRoom1.png';
@@ -18,6 +21,7 @@ import {
   PanelTop,
   Settings,
   Video,
+  X,
   Workflow,
   Mail,
   Linkedin,
@@ -29,6 +33,30 @@ import {
   Presentation,
   ExternalLink,
 } from "lucide-react";
+
+// Configure Contentful Client
+const contentfulClient = createClient({
+  space: '551rp64eiwpx', // Paste your Space ID here
+  accessToken: 'uG_vTCp1jXbb8vU21dxEYxyi-sSchK4wN1S6oF_jsm0', // Paste your access token here
+});
+// reveal animation
+// Add this new component to your file
+function Reveal({ children }) {
+  return (
+    <motion.div
+      variants={{
+        hidden: { opacity: 0, y: 75 }, // Start hidden below
+        visible: { opacity: 1, y: 0 },  // Animate to visible at original position
+      }}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }} // Only animate once
+      transition={{ duration: 0.5, delay: 0.25 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 // ---------- Data (edit here to update content) ----------
 const profile = {
@@ -333,7 +361,7 @@ function Chip({ children }) {
 // Find this component in your code
 function Section({ id, title, eyebrow, children, actions }) {
   return (
-    <section id={id} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+    <section id={id} className="px-4 sm:px-6 lg:px-8 py-8">
       {/* This container now ONLY handles the title and eyebrow */}
       <div className="mb-8">
         {eyebrow && (
@@ -358,7 +386,7 @@ function Card({ children }) {
   );
 }
 
-function Nav() {
+function Nav({ onBlogClick }) {
   const items = [
     { href: "#about", label: "About" },
     { href: "#services", label: "Services" },
@@ -366,35 +394,40 @@ function Nav() {
     { href: "#solutions", label: "Solutions" },
     { href: "#expertise", label: "Expertise" },
     { href: "#milestones", label: "Milestones" },
+    { onClick: onBlogClick, label: "Blog" },
     { href: "#contact", label: "Contact" },
   ];
   return (
     <div className="sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-black/30 border-b border-black/5 dark:border-white/10">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* This link now wraps the logo and name, making them clickable */}
+      <nav className="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        {/* The link now wraps the logo, name, and title */}
         <a href="#" className="flex items-center gap-3">
-          {/* 1. Image is now used instead of the placeholder div */}
           <img src={myLogo} alt="Logo" className="h-9 w-9 rounded-xl object-cover" />
           <div className="leading-tight">
-            {/* 2. Text size for the name is increased from text-sm to text-base */}
             <div className="text-base font-semibold text-gray-900 dark:text-white">{profile.name}</div>
             <div className="text-xs text-gray-500 dark:text-gray-400">{profile.title}</div>
           </div>
         </a>
 
-        {/* --- Main navigation links (no changes here) --- */}
+        {/* Main navigation links */}
         <div className="hidden md:flex items-center gap-6 text-sm">
-          {items.map((i) => (
-            <a key={i.href} href={i.href} className="text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-cyan-300">
-              {i.label}
-            </a>
-          ))}
+          {items.map((i) =>
+            i.href ? (
+              <a key={i.label} href={i.href} className="text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-cyan-400">
+                {i.label}
+              </a>
+            ) : (
+              <button key={i.label} onClick={i.onClick} className="text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-cyan-400">
+                {i.label}
+              </button>
+            )
+          )}
         </div>
 
-        {/* --- Social links (no changes here) --- */}
+        {/* Social links */}
         <div className="flex items-center gap-2">
           {profile.socials.map(({ label, href, Icon }) => (
-            <a key={label} href={href} className="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10" aria-label={label}>
+            <a key={label} href={href} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10" aria-label={label}>
               <Icon className="h-5 w-5 text-gray-700 dark:text-gray-200" />
             </a>
           ))}
@@ -403,7 +436,6 @@ function Nav() {
     </div>
   );
 }
-
 // FIX: Corrected the component structure, removing duplicated and malformed code.
 function Hero() {
   return (
@@ -412,53 +444,57 @@ function Hero() {
         <div className="absolute -top-32 -right-24 h-72 w-72 rounded-full blur-3xl opacity-40 bg-gradient-to-br from-indigo-500/40 to-cyan-400/40" />
         <div className="absolute -bottom-24 -left-24 h-80 w-80 rounded-full blur-3xl opacity-40 bg-gradient-to-tr from-sky-400/40 to-fuchsia-400/40" />
       </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <motion.div {...fadeUp} className="grid md:grid-cols-12 items-center gap-10">
-          <div className="md:col-span-7">
-            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-              AV & Broadcast Systems that <span className="bg-gradient-to-r from-indigo-600 to-cyan-500 bg-clip-text text-transparent">perform</span>
-            </h1>
-            <p className="mt-4 text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl">
-              Broadcast, AV, and ELV integrator specializing in the design, integration, and support of high-performance systems for corporate, government, and broadcast environments — from boardrooms to broadcast studios.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              {profile.highlights.map((h) => (
-                <Chip key={h}>{h}</Chip>
-              ))}
-            </div>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#contact" className="inline-flex items-center gap-2 rounded-2xl bg-gray-900 dark:bg:white text-white dark:text-gray-900 px-4 py-2.5 text-sm font-semibold hover:opacity-90">
-                Request a proposal <ChevronRight className="h-4 w-4" />
-              </a>
-              <a href="#projects" className="inline-flex items-center gap-2 rounded-2xl ring-1 ring-black/10 dark:ring-white/20 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-white hover:bg-black/5 dark:hover:bg-white/10">
-                View projects
-              </a>
-            </div>
-          </div>
-          <div className="md:col-span-5">
-            <Card>
-              <div className="flex flex-col items-center text-center">
-                <div className="relative mx-auto w/full max-w-[280px]">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 blur-2xl opacity-40 -z-10" />
-                  <div className="rounded-full p-[3px] bg-gradient-to-tr from-indigo-500 to-cyan-400">
-                    <img
-                      src={profile.heroImage}
-                      alt={`${profile.name} portrait`}
-                      className="rounded-full w-full h-full object-cover bg-white"
-                    />
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <div className="text-2xl font-semibold text-gray-900 dark:text-white">{profile.name}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{profile.title}</div>
-                  <div className="mt-2 inline-flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                    <MapPin className="h-4 w-4" /> {profile.location}
-                  </div>
-                </div>
+      <div className="px-4 sm:px-6 lg:px-8 pt-16 pb-8">
+        {/* The Reveal component now wraps the main content grid */}
+        <Reveal>
+          {/* This was changed from <motion.div> to a regular <div> */}
+          <div className="grid md:grid-cols-12 items-center gap-10">
+            <div className="md:col-span-7">
+              <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+                AV & Broadcast Systems that <span className="bg-gradient-to-r from-indigo-600 to-cyan-500 bg-clip-text text-transparent">perform</span>
+              </h1>
+              <p className="mt-4 text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl">
+                Broadcast, AV, and ELV integrator specializing in the design, integration, and support of high-performance systems for corporate, government, and broadcast environments — from boardrooms to broadcast studios.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                {profile.highlights.map((h) => (
+                  <Chip key={h}>{h}</Chip>
+                ))}
               </div>
-            </Card>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <a href="#contact" className="inline-flex items-center gap-2 rounded-2xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-2.5 text-sm font-semibold hover:opacity-90">
+                  Request a proposal <ChevronRight className="h-4 w-4" />
+                </a>
+                <a href="#projects" className="inline-flex items-center gap-2 rounded-2xl ring-1 ring-black/10 dark:ring-white/20 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-white hover:bg-black/5 dark:hover:bg-white/10">
+                  View projects
+                </a>
+              </div>
+            </div>
+            <div className="md:col-span-5">
+              <Card>
+                <div className="flex flex-col items-center text-center">
+                  <div className="relative mx-auto w-full max-w-[280px]">
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 blur-2xl opacity-40 -z-10" />
+                    <div className="rounded-full p-[3px] bg-gradient-to-tr from-indigo-500 to-cyan-400">
+                      <img
+                        src={profile.heroImage}
+                        alt={`${profile.name} portrait`}
+                        className="rounded-full w-full h-full object-cover bg-white"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <div className="text-2xl font-semibold text-gray-900 dark:text-white">{profile.name}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{profile.title}</div>
+                    <div className="mt-2 inline-flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                      <MapPin className="h-4 w-4" /> {profile.location}
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
           </div>
-        </motion.div>
+        </Reveal>
       </div>
     </header>
   );
@@ -469,7 +505,7 @@ function Services() {
     <Section id="services" title="Services" eyebrow="What I do">
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {services.map((s) => (
-          <motion.div key={s.title} {...fadeUp}>
+          <Reveal key={s.title}>
             <Card>
               <div className="flex items-start gap-4">
                 <span className="p-3 rounded-2xl bg-black/5 dark:bg-white/10">
@@ -486,7 +522,7 @@ function Services() {
                 </div>
               </div>
             </Card>
-          </motion.div>
+          </Reveal>
         ))}
       </div>
     </Section>
@@ -636,7 +672,7 @@ function Solutions() {
     <Section id="solutions" title="Meeting Room Solutions" eyebrow="From the deck">
       <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
         {solutions.map((s) => (
-          <motion.div key={s.title} {...fadeUp}>
+          <Reveal key={s.title}>
             <Card>
               <div className="space-y-3">
                 <div className="aspect-video w-full rounded-xl overflow-hidden ring-1 ring-black/5 dark:ring-white/10 bg-gradient-to-br from-slate-200 to-slate-100 dark:from-white/10 dark:to-white/5 flex items-center justify-center">
@@ -652,7 +688,7 @@ function Solutions() {
                 </div>
               </div>
             </Card>
-          </motion.div>
+          </Reveal>
         ))}
       </div>
     </Section>
@@ -930,43 +966,51 @@ function DevDiagnostics() {
 }
 
 export default function Portfolio() {
+  const [isBlogOpen, setIsBlogOpen] = useState(false);
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-neutral-950 text-gray-900 dark:text-white">
       <DevDiagnostics />
-      <Nav />
+      <Nav onBlogClick={() => setIsBlogOpen(true)} />
       <main>
         <Hero />
+
+        {/* --- Updated "About" Section --- */}
         <Section id="about" title="About" eyebrow="Who I am">
           <div className="grid md:grid-cols-3 gap-6">
-            <motion.div {...fadeUp} className="md:col-span-2">
-              <Card>
-                <p className="text-sm leading-7 text-gray-700 dark:text-gray-200">
-                  I’m a systems integrator specializing in <strong>enterprise AV</strong>, <strong>broadcast</strong>, and <strong>ELV</strong> solutions, 
-                  with over <strong>20 years</strong> of experience delivering <em>reliable, maintainable, and operator-friendly</em> systems. 
-                  From needs assessment and design to commissioning, documentation, and training, I work closely with clients and vendors 
-                  to ensure technical requirements are met while safeguarding budgets and timelines. 
-                  My portfolio includes <strong>300+  state-of-the-art meeting rooms</strong>, 
-                  <strong>AV over IP</strong> deployments, and <strong>large-scale broadcast projects</strong> for corporate, government, and educational sectors.
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Chip>Head of System Integrations — Anscom Limited</Chip>
-                  <Chip>Government & Enterprise Tenders</Chip>
-                  <Chip>Hands‑on Commissioning</Chip>
-                </div>
-              </Card>
-            </motion.div>
-            <motion.div {...fadeUp}>
-              <Card>
-                <div className="text-sm text-gray-700 dark:text-gray-200 space-y-3">
-                  <div className="flex items-start gap-2"><Cpu className="h-4 w-4 mt-0.5 flex-shrink-0" /> Q‑SYS programming & automation</div>
-                  <div className="flex items-start gap-2"><Settings className="h-4 w-4 mt-0.5 flex-shrink-0" /> Lifecycle & EOL planning</div>
-                  <div className="flex items-start gap-2"><AudioLines className="h-4 w-4 mt-0.5 flex-shrink-0" /> Dante‑first audio routing</div>
-                  <div className="flex items-start gap-2"><Video className="h-4 w-4 mt-0.5 flex-shrink-0" /> SDI/NDI hybrid workflows</div>
-                </div>
-              </Card>
-            </motion.div>
+            <div className="md:col-span-2">
+              <Reveal>
+                <Card>
+                  <p className="text-sm leading-7 text-gray-700 dark:text-gray-200">
+                    I’m a systems integrator specializing in <strong>enterprise AV</strong>, <strong>broadcast</strong>, and <strong>ELV</strong> solutions, 
+                    with over <strong>20 years</strong> of experience delivering <em>reliable, maintainable, and operator-friendly</em> systems. 
+                    From needs assessment and design to commissioning, documentation, and training, I work closely with clients and vendors 
+                    to ensure technical requirements are met while safeguarding budgets and timelines. 
+                    My portfolio includes <strong>300+ state-of-the-art meeting rooms</strong>, 
+                    <strong>AV over IP</strong> deployments, and <strong>large-scale broadcast projects</strong> for corporate, government, and educational sectors.
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Chip>Head of System Integrations — Anscom Limited</Chip>
+                    <Chip>Government & Enterprise Tenders</Chip>
+                    <Chip>Hands‑on Commissioning</Chip>
+                  </div>
+                </Card>
+              </Reveal>
+            </div>
+            <div>
+              <Reveal>
+                <Card>
+                  <div className="text-sm text-gray-700 dark:text-gray-200 space-y-3">
+                    <div className="flex items-start gap-2"><Cpu className="h-4 w-4 mt-0.5 flex-shrink-0" /> Q‑SYS programming & automation</div>
+                    <div className="flex items-start gap-2"><Settings className="h-4 w-4 mt-0.5 flex-shrink-0" /> Lifecycle & EOL planning</div>
+                    <div className="flex items-start gap-2"><AudioLines className="h-4 w-4 mt-0.5 flex-shrink-0" /> Dante‑first audio routing</div>
+                    <div className="flex items-start gap-2"><Video className="h-4 w-4 mt-0.5 flex-shrink-0" /> SDI/NDI hybrid workflows</div>
+                  </div>
+                </Card>
+              </Reveal>
+            </div>
           </div>
         </Section>
+        
         <Services />
         <Projects />
         <Solutions />
@@ -977,6 +1021,248 @@ export default function Portfolio() {
         <Milestones />
         <Contact />
       </main>
+       {isBlogOpen && <BlogModal onClose={() => setIsBlogOpen(false)} />}
     </div>
   );
+} 
+
+//blog
+
+
+// --- BlogModal (drop-in replacement) ---
+function BlogModal({ onClose }) {
+  const [posts, setPosts] = useState([]);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [activeTag, setActiveTag] = useState("All");
+
+  // Render helper: supports Rich Text, plain text, and embedded assets/links
+  const renderRichText = useMemo(() => {
+    const options = {
+      renderNode: {
+        [BLOCKS.HEADING_1]: (_node, children) => <h2>{children}</h2>,
+        [BLOCKS.HEADING_2]: (_node, children) => <h3>{children}</h3>,
+        [BLOCKS.HEADING_3]: (_node, children) => <h4>{children}</h4>,
+        [BLOCKS.PARAGRAPH]: (_node, children) => <p>{children}</p>,
+        [BLOCKS.UL_LIST]: (_node, children) => <ul>{children}</ul>,
+        [BLOCKS.OL_LIST]: (_node, children) => <ol>{children}</ol>,
+        [BLOCKS.QUOTE]: (_node, children) => <blockquote>{children}</blockquote>,
+        [BLOCKS.EMBEDDED_ASSET]: (node) => {
+          const file = node?.data?.target?.fields?.file;
+          const title = node?.data?.target?.fields?.title || "";
+          if (!file?.url) return null;
+          return (
+            <img
+              src={`https:${file.url}`}
+              alt={title}
+              className="rounded-lg my-4"
+            />
+          );
+        },
+      },
+    };
+
+    return (value) => {
+      if (!value) return null;
+      // If your field is plain text (not Rich Text)
+      if (typeof value === "string") {
+        return <p className="whitespace-pre-line">{value}</p>;
+      }
+      // If it looks like a Rich Text document
+      if (value?.nodeType && value?.content) {
+        return documentToReactComponents(value, options);
+      }
+      // Fallback: unknown shape
+      try {
+        return <pre className="text-xs overflow-x-auto">{JSON.stringify(value, null, 2)}</pre>;
+      } catch {
+        return null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    contentfulClient
+      .getEntries({
+        content_type: "myBlog",
+        include: 2,                    // resolve linked assets/entries
+        order: "-fields.publishDate",  // sort at the API
+      })
+      .then((response) => setPosts(response.items || []))
+      .catch(console.error);
+  }, []);
+
+  const allTags = useMemo(
+    () => [...new Set(posts.flatMap((p) => p.fields.tags || []))].sort(),
+    [posts]
+  );
+
+  const groupedPosts = useMemo(() => {
+    const filtered =
+      activeTag === "All"
+        ? posts
+        : posts.filter((p) => (p.fields.tags || []).includes(activeTag));
+
+    // (Already ordered by API, but keep a safe sort here)
+    const sorted = filtered.slice().sort((a, b) => {
+      const ad = new Date(a.fields.publishDate || 0).getTime();
+      const bd = new Date(b.fields.publishDate || 0).getTime();
+      return bd - ad;
+    });
+
+    return sorted.reduce((acc, post) => {
+      const d = new Date(post.fields.publishDate || Date.now());
+      const year = d.getFullYear();
+      const month = d.toLocaleString("default", { month: "long" });
+      acc[year] ||= {};
+      acc[year][month] ||= [];
+      acc[year][month].push(post);
+      return acc;
+    }, {});
+  }, [posts, activeTag]);
+
+  useEffect(() => {
+    const years = Object.keys(groupedPosts);
+    if (years.length) {
+      const firstYear = years[0];
+      const months = Object.keys(groupedPosts[firstYear]);
+      if (months.length) {
+        setSelectedPost(groupedPosts[firstYear][months[0]][0]);
+        return;
+      }
+    }
+    setSelectedPost(null);
+  }, [groupedPosts]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm p-4 flex items-center justify-center"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 50, opacity: 0 }}
+        className="relative bg-gray-50 dark:bg-neutral-900 w-full max-w-6xl h-[90vh] rounded-2xl shadow-xl overflow-hidden flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-4 border-b border-black/10 dark:border-white/10 flex items-center justify-between flex-shrink-0">
+          <h2 className="text-xl font-bold">From the Blog</h2>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="grid md:grid-cols-3 lg:grid-cols-4 h-full overflow-hidden">
+          {/* Left panel: filters + list */}
+          <div className="md:col-span-1 lg:col-span-1 bg-white/50 dark:bg-black/10 border-r border-black/5 dark:border-white/5 overflow-y-auto">
+            <div className="p-3 border-b border-black/5 dark:border-white/5">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setActiveTag("All")}
+                  className={classNames(
+                    "px-2 py-1 rounded-md text-xs",
+                    activeTag === "All"
+                      ? "bg-indigo-600 text-white"
+                      : "bg-black/5 dark:bg-white/10"
+                  )}
+                >
+                  All
+                </button>
+                {allTags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => setActiveTag(tag)}
+                    className={classNames(
+                      "px-2 py-1 rounded-md text-xs",
+                      activeTag === tag
+                        ? "bg-indigo-600 text-white"
+                        : "bg-black/5 dark:bg_WHITE/10"
+                    )}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <nav className="p-2">
+              {Object.keys(groupedPosts).map((year) => (
+                <div key={year} className="mb-2">
+                  <div className="px-3 py-1 text-xs font-bold uppercase text-gray-400">
+                    {year}
+                  </div>
+                  {Object.keys(groupedPosts[year]).map((month) => (
+                    <div key={month} className="mb-1">
+                      <div className="px-3 py-1 text-xs font-semibold text-gray-500">
+                        {month}
+                      </div>
+                      <ul>
+                        {groupedPosts[year][month].map((post) => (
+                          <li key={post.sys.id}>
+                            <button
+                              onClick={() => setSelectedPost(post)}
+                              className={classNames(
+                                "w-full text-left p-3 rounded-lg text-sm",
+                                selectedPost?.sys.id === post.sys.id
+                                  ? "bg-indigo-100 dark:bg-cyan-900/50 font-semibold"
+                                  : "hover:bg-black/5 dark:hover:bg-white/5"
+                              )}
+                            >
+                              {post.fields.title}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </nav>
+          </div>
+
+          {/* Right panel: article */}
+          <div className="md:col-span-2 lg:col-span-3 p-6 md:p-8 overflow-y-auto">
+            {selectedPost ? (
+              <article className="prose prose-sm dark:prose-invert max-w-none">
+                <h1>{selectedPost.fields.title}</h1>
+
+                {/* Hero image */}
+                {selectedPost.fields.heroImage?.fields?.file?.url && (
+                  <img
+                    src={`https:${selectedPost.fields.heroImage.fields.file.url}`}
+                    alt={selectedPost.fields.title}
+                    className="w-full aspect-video object-cover rounded-xl my-6"
+                  />
+                )}
+
+                {/* Body: supports Rich Text or plain string */}
+                <div>
+                  {renderRichText(
+                    // Prefer a Rich Text field name if your model uses a different id:
+                    selectedPost.fields.content ||
+                      selectedPost.fields.body ||
+                      selectedPost.fields.postBody ||
+                      null
+                  )}
+                </div>
+              </article>
+            ) : (
+              <p className="text-sm text-gray-500">
+                Select a post from the left to read.
+              </p>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
 }
+
+
